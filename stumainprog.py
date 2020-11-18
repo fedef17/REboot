@@ -30,3 +30,8 @@ gigi = rbl.Pip(name = 'Gigi', age = '27', wishes = wishlist, needs = needslist, 
 
 gigi.description()
 gigi.chenepensidelcovid()
+
+
+galo = rbl.Community(n_pips = 1000)
+sys.exit()
+galo.generate_pips()
