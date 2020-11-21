@@ -58,14 +58,19 @@ def give_names(num_pips, pip_names = pip_names):
 
 ####################################################################
 
+## General notes: a map is definitely needed at a certain point. Urbanistics, in the sense of the city architecture, is key for that -> in this sense it is better to consider multiple production/welfare units of a fixed dimension, than having very big units for big cities.
+
+####################################################################
+
 ################### Infrastructure
 inames = dict()
-inames['logistic'] = 'road train'.split()
+inames['logistics'] = 'road train metro bike_lane city_pavement'.split() # I'd separate ideally the intra and extra-city logistics
 inames['tools'] = 'agriculture extraction industry medicine'.split()
-inames['buildings'] = 'building forniture'.split()
-inames['energy'] = 'solar_panels wind_mill hydro_power oil_splill oil_pipes'.split()
+inames['buildings'] = 'building forniture heating hydraulics electricity'.split()
+inames['energy'] = 'solar_panels wind_mill hydro_power ff_splill ff_pipes'.split() ## ff = fossil fuel
+inames['urban_env'] = 'parks trees'.split()
 
-itypes = 'logistic tools buildings energy'.split()
+itypes = 'logistics tools buildings energy urban_env'.split()
 
 class Infrastructure(object):
     """
@@ -85,9 +90,9 @@ class Infrastructure(object):
 
         return work_needed#, time_needed
 
-    def assign_to_unit(self):
+    def link_to_unit(self):
         """
-        The infrastructure is assigned to a ProdUnit/WelfUnit.
+        The infrastructure is linked to a ProdUnit/WelfUnit.
         """
         pass
 
@@ -97,7 +102,7 @@ wnames['education'] = 'school1 school2 university research practice'.split()
 wnames['health'] = 'nurse doctor psychologist ...'.split()
 wnames['social_services'] = 'transport social_assistance administration'.split()
 wnames['environment'] = 'cleaning waste_dsp protection'.split()
-wnames['distribution'] = 'food resources production'.split()
+wnames['distribution'] = 'food resources production'.split() ### The goods produced are distributed by distribution Welfare Units. The capitalist supermarket is here. But no such thing in our world.
 
 wtypes = 'education health social_services environment distribution'.split()
 
@@ -117,6 +122,8 @@ class WelfUnit(object):
         Produce a given amount of wname for a number of pips. Calculates the necessary work. As for the resources, the work generally depends on the infrastructure. Not only, the infrastructure also sets the maximum number of pips that can be assisted (e.g. hospital beds).
 
         In this way, this function makes sense only for health and education. Maybe also for social_services and distribution: in this sense all pips need the services, while it is only a part of the community for health and education. The environment welfare class might have a different function.
+
+        A simpler way to do this in first instance is to set average necessary numbers for a given population. Of course the number might increase in special situations, like a new pandemic, but it is simpler to always look at the number in function of the total population and its age distribution (e.g. education (mainly) interests the younger population, while health is probably a more complex function, with heavier weights for the elder).
         """
 
         return work_needed
@@ -131,10 +138,45 @@ class WelfUnit(object):
 pnames = dict()
 pnames['food'] = 'crop meat water fish ...'.split()
 pnames['construction'] = 'logistic building energy_infra'.split()
-pnames['industry'] = 'forniture clothing machines chemistry ...'.split() # Also non-essential production, for example for the free time (sports, other) might appear here
-pnames['extraction'] = 'material fuel'.split()
+pnames['industry'] = 'forniture clothing machines chemistry stuff ...'.split() # Also non-essential production, for example for the free time (sports, other) might appear here. A LOT OF STUFF has to appear here. This is probably the most difficult section to cathegorize.
 
-ptypes = 'food construction industry extraction'.split()
+pnames['extraction'] = 'material fuel'.split()
+pnames['immaterial'] = 'research writing art'.split() # generally immaterial production. This is actually heavily linked to welfare.. can this be seen in terms of production? This would be good for applied research (i.e. solve some problem), but how for pure research or arts? Difficult to estimate a needed amount: the more, the better.
+
+ptypes = 'food construction industry extraction immaterial'.split()
+
+
+################### Production objects. This is the material effect of production, and represents the goods produced. The category of the goods are the same that for production.
+class Good(object):
+    """
+    General class for Goods produced by a Production Unit. Goods can be summed, stored, moved, ecc. They are created by a ProdUnit.
+    """
+
+    def __init__(self, amount, pname = None, ptype = None):
+        self.pname = pname
+        self.ptype = ptype
+        self.amount = amount
+
+        return
+
+    def assign_to_distribution_unit(self, amount):
+        """
+        Produce a given amount of pname. Calculates the necessary work to produce amount. As for the resources, the work generally depends on the infrastructure.
+        """
+
+        return work_needed#, time_needed
+
+    def consume(self):
+        """
+        Goods are of different types. Food is consumed shortly after being distributed: this action destroys the good object, maybe producing a given amount of waste? Which is also a good in this sense. Other goods, like the infrastructure goods, are thought to last a lot more, but they also consume on a different timescale, or become obsolete in some cases.
+
+        This gives a sense to the time axis :)
+        """
+
+        # Remove from list of available goods in the community.
+        pass
+
+
 
 class ProdUnit(object):
     """
@@ -152,9 +194,14 @@ class ProdUnit(object):
         Produce a given amount of pname. Calculates the necessary work to produce amount. As for the resources, the work generally depends on the infrastructure.
         """
 
+        # Adds the corresponding good to the list of goods available in the community.
+
         return work_needed#, time_needed
 
     def assign_pips(self):
+        pass
+
+    def create_good(self):
         pass
 
 
